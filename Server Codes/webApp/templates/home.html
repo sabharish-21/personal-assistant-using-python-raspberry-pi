@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %} Dashboard | TARA {% endblock %}
+{% block maincode %}
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Dashboard</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    USER LOG
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <label for="searchField"><b>Filter :</b></label>
+                        <input type="search" class="form-control" id="searchField" style="float: right;"
+                               onchange="log_refresh()">
+                    </div>
+                <br>
+                    <div class="card-body table-responsive p-0" style="height: 550px;">
+                        <table class="table table-head-fixed text-nowrap" id="logTable">
+                            <thead>
+                            <tr>
+                                <th>SNO</th>
+                                <th>User ID</th>
+                                <th>User Name</th>
+                                <th>Date / Time</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i, j in data %}
+                                <tr>
+                                    <td>{{ i }}</td>
+                                    <td>{{ j.userID }}</td>
+                                    <td>{{ j.userName }}</td>
+                                    <td>{{ j.dateTime }}</td>
+                                    <td>{{ j.action }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+
+        function log_refresh() {
+            var query = document.getElementById('searchField').value;
+            $.ajax({
+                url: '{% url "ajax_reload_log" %}',
+                data: {
+                    'search': query,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    appendToUsrTable(data.obj)
+                }
+            });
+        }
+
+        function appendToUsrTable(data_table) {
+            $("#logTable tbody tr").remove();
+            for (let data in data_table) {
+                $("#logTable > tbody:last-child").append(`
+                        <tr>
+                            <td>${data_table[data][0]}</td>
+                            '<td>${data_table[data][1].userID}</td>
+                            '<td>${data_table[data][1].userName}</td>
+                            '<td>${data_table[data][1].dateTime}</td>
+                            '<td>${data_table[data][1].action}</td>
+                        </tr>
+                    `);
+            }
+        }
+    </script>
+{% endblock %}
+
